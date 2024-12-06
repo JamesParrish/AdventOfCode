@@ -1,17 +1,30 @@
-﻿using AdventOfCode.Days;
+﻿using AdventOfCode;
+using AdventOfCode.Days;
+using AdventOfCode.Factories;
 using AdventOfCode.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-var builder = Host.CreateApplicationBuilder(args);
+internal class Program
+{
 
-builder.Services.AddTransient<IDay, Day1>(); ;
-builder.Services.AddTransient<IFileHelper, FileHelper>(); ;
+    public static void Main(string[] args)
+    {
+        var host = CreateHostBuilder(args).Build();
+        var processor = host.Services.GetRequiredService<IProcessor>();
+        processor.Process();
+    }
 
-var app = builder.Build();
-
-Console.WriteLine("Hello, World!");
-
-app.Services.GetService<IDay>().Process1Star();
-app.Services.GetService<IDay>().Process2Star();
-
+    private static IHostBuilder CreateHostBuilder(string[] args)
+    {
+        return Host.CreateDefaultBuilder(args)
+            .ConfigureServices(services =>
+            {
+                services.AddTransient<IDayFactory, DayFactory>();
+                services.AddTransient<IProcessor, Processor>();
+                services.AddTransient<IFileHelper, FileHelper>();
+                services.AddTransient<IDay, Day1>();
+                services.AddTransient<IDay, Day2>();
+            });
+    }
+}
